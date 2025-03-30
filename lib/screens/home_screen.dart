@@ -1,7 +1,16 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:vitalflow/services/steps_service.dart';
 import 'package:vitalflow/utils/health_manager.dart';
+import 'package:vitalflow/services/water_intake_service.dart';
 import 'dart:async';
+
+import '../services/heart_rate_service.dart';
+import '../services/sleep_service.dart';
+import '../utils/health_service.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -11,11 +20,16 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final HealthManager healthManager = HealthManager();
   int stepCount = 0;
+  int goalStepCount = 10000;
   double heartRate = 0.0;
-  double weight = 0.0;
-  double sleepHours = 7.0;
-  double waterIntake = 2.5;
-  double stressLevel = 5.0;
+  double sleepHours = 6.0;
+  double goalSleepHours = 7.5;
+  double waterIntake = 3.0;
+  double goalWaterIntake = 3.7;
+  double stressLevel = 6.0;
+  double dayRating = 7;    // Add this variable
+  double weight = 56.0;
+  double goalWeight = 75.0;
   Timer? _timer;
   bool isLoading = false;
 
@@ -33,12 +47,106 @@ class _HomeScreenState extends State<HomeScreen> {
     double bpm = await healthManager.fetchHeartRate();
     double kg = await healthManager.fetchWeight();
 
-    setState(() {
-      stepCount = steps;
-      heartRate = bpm;
-      weight = kg;
-      isLoading = false;
-    });
+    try {
+      if (steps != 0 && bpm != 0 && kg != 0) {
+        await StepService.logSteps(steps.toDouble(), stepsGoal: 10000);
+        await HeartRateService.logHeartRate(bpm);
+        // await WeightService.logWeight(kg);
+      } else {
+        steps = 0;
+        bpm = 0;
+        kg = 0;
+      }
+    } catch (e) {
+      print("Error Logging data: $e");
+      setState(() => isLoading = false);
+    }
+
+    try {
+      //  Fetch Water Intake Data
+      Map<String, dynamic> waterData = await WaterIntakeService.getWaterIntake();
+      List<dynamic> waterRecords = waterData["water_intake"] ?? [];
+
+      double totalWater = 0.0;
+      for (var record in waterRecords) {
+        double intake = double.tryParse(record["water_intake_ml"].toString()) ?? 0.0;
+        totalWater += intake / 1000.0; // Convert ml to L
+      }
+
+      //  Fetch Step Count Data
+      Map<String, dynamic> stepData = await StepService.getSteps();
+      List<dynamic> stepRecords = stepData["steps"] ?? [];
+
+      double totalSteps = 0.0;
+      double stepsGoal = goalStepCount.toDouble();
+      for (var record in stepRecords) {
+        totalSteps += double.tryParse(record["steps_count"].toString()) ?? 0.0;
+        if (record.containsKey("steps_goal")) {
+          stepsGoal = double.tryParse(record["steps_goal"].toString()) ?? goalStepCount.toDouble();
+        }
+      }
+
+      // Fetch Heart Rate Data
+      Map<String, dynamic> heartData = await HeartRateService.getHeartRate();
+      List<dynamic> heartRecords = heartData["heart_rate_log"] ?? [];
+
+      double lastHeartRate = 0.0;
+      if (heartRecords.isNotEmpty) {
+        lastHeartRate = double.tryParse(heartRecords.last["heart_rate_bpm"].toString()) ?? 0.0;
+      }
+
+      //  Fetch Sleep Data
+      Map<String, dynamic> sleepData = await SleepService.getSleep();
+      List<dynamic> sleepRecords = sleepData["sleep"] ?? [];
+
+      double totalSleep = 0.0;
+      double sleepGoal = goalSleepHours; // Default goal
+      String lastSleepQuality = "Unknown"; // Default value
+
+      if (sleepRecords.isNotEmpty) {
+        var lastRecord = sleepRecords.last;
+
+        // Convert minutes to hours
+        totalSleep = (lastRecord["sleep_duration_min"] is num)
+            ? (lastRecord["sleep_duration_min"] / 60.0)
+            : (double.tryParse(lastRecord["sleep_duration_min"].toString()) ?? 0.0) / 60.0;
+
+        sleepGoal = (lastRecord["sleep_goal"] is num)
+            ? (lastRecord["sleep_goal"] / 60.0)
+            : (double.tryParse(lastRecord["sleep_goal"].toString()) ?? 450.0) / 60.0;
+
+        lastSleepQuality = lastRecord["sleep_quality"] ?? "Unknown";
+      }
+
+      // Debugging output
+      // print(" Sleep: $totalSleep hrs, Goal: $sleepGoal hrs, Quality: $lastSleepQuality");
+
+      //Fetch Weight data
+      Map<String, dynamic> healthData = await HealthService.getHealth();
+      List<dynamic> healthRecords = healthData["health_log"] ?? [];  //  Corrected key
+
+      double lastWeight = 0.0;
+      if (healthRecords.isNotEmpty) {
+        lastWeight = double.tryParse(healthRecords.last["weight"].toString()) ?? 0.0;
+      }
+
+      // print(" Weight: $lastWeight kg");
+
+      setState(() {
+        stepCount = totalSteps.toInt();
+        goalStepCount = stepsGoal.toInt();
+        heartRate = lastHeartRate > 0 ? lastHeartRate : 120.0;
+        waterIntake = totalWater > 0 ? totalWater : 1.0;
+        sleepHours = totalSleep > 0 ? totalSleep : 0.0;
+        goalSleepHours = sleepGoal > 0 ? sleepGoal : 7.5;
+        weight = lastWeight > 0 ? lastWeight : 66;
+
+        isLoading = false;
+      });
+    } catch (e) {
+      print("Error fetching data: $e");
+      setState(() => isLoading = false);
+    }
   }
 
   @override
@@ -51,146 +159,358 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFF121212),
-      appBar: AppBar(
-        title: Text('VitalFlow', style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.black,
-        elevation: 0,
-      ),
-      extendBodyBehindAppBar: true,
-      body: Padding(
+      bottomNavigationBar: _buildBottomNavBar(),
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 100),
+            SizedBox(height: 50),
+            _buildHeartStepCircularGraphs(),
+            SizedBox(height: 20),
+            _buildSleepWidget(),
+            SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildCircularProgress('Steps', stepCount.toDouble(), 10000, Colors.lightBlueAccent, Icons.directions_walk),
-                _buildCircularProgress('Heart Rate', heartRate, 150, Colors.green, Icons.favorite),
+                _buildWaterIntake(),
+                _buildStressDayCircularGraphs(),
               ],
             ),
             SizedBox(height: 20),
-            _buildBarGraph('Weight', weight, 80, Colors.deepOrange, Icons.fitness_center),
-            SizedBox(height: 20),
-            _buildHorizontalBarGraph('Sleep Time', sleepHours, 8, Colors.pinkAccent, Icons.nightlight_round),
-            SizedBox(height: 20),
-            _buildHorizontalBarGraph('Water Intake (L)', waterIntake, 4, Colors.cyan, Icons.local_drink),
-            SizedBox(height: 20),
-            _buildCircularProgress('Stress Level', stressLevel, 10, Colors.orange, Icons.self_improvement),
-            Spacer(),
-            ElevatedButton(
-              onPressed: isLoading ? null : fetchData,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.black,
-                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                textStyle: TextStyle(fontSize: 18),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
-              ),
-              child: isLoading ? CircularProgressIndicator(color: Colors.black) : Text('Refresh Data'),
-            ),
-            SizedBox(height: 30),
+            _buildWeightProgress(),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildCircularProgress(String label, double value, double max, Color color, IconData icon) {
-    return Column(
+  Widget _buildHeartStepCircularGraphs() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        Text(label, style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-        SizedBox(height: 10),
-        SizedBox(
-          width: 120,
-          height: 120,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              CircularProgressIndicator(
-                value: value / max,
-                strokeWidth: 8,
-                backgroundColor: Colors.grey.shade800,
-                valueColor: AlwaysStoppedAnimation<Color>(color),
-              ),
-              Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(icon, color: color, size: 24),
-                    SizedBox(height: 5),
-                    Text(value.toStringAsFixed(1), style: TextStyle(color: Colors.white, fontSize: 18)),
-                  ],
+        Column(
+          children: [
+            _dualCircularIndicator(
+                heartRate, 200,
+                stepCount.toDouble(), goalStepCount.toDouble(),
+                "Heart Rate", "Steps",
+                Colors.green, Colors.blue
+            ),
+            SizedBox(height: 10), // Space between the graph and text
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.favorite, color: Colors.green, size: 20),
+                SizedBox(width: 5),
+                Text("Heart Rate: ${heartRate.toInt()} bpm",
+                    style: GoogleFonts.roboto(color: Colors.white, fontSize: 14,fontWeight: FontWeight.bold)),
+
+                SizedBox(width: 20), // Space between Heart Rate & Steps
+
+                Icon(Icons.directions_walk, color: Colors.blue, size: 20),
+                SizedBox(width: 5),
+                Text("Steps: ${stepCount.toInt()}",
+                    style: GoogleFonts.roboto(color: Colors.white, fontSize: 14,fontWeight: FontWeight.bold)),
+              ],
+            ),
+
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStressDayCircularGraphs() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        Column(
+          children: [
+            SizedBox(height: 22), // Increased spacing for better readability
+            _dualCircularIndicator(
+                stressLevel, 10,
+                dayRating, 10,
+                "Stress Lvl.", "Day Rating",
+                Colors.red, Colors.orange
+            ),
+            SizedBox(height: 22), // Increased spacing for better readability
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.self_improvement, color: Colors.red, size: 22), // Stress Icon
+                SizedBox(width: 6),
+                Text(
+                  "Stress Lvl: ${stressLevel.toInt()}",
+                  style: GoogleFonts.roboto(color: Colors.white, fontSize: 14,fontWeight: FontWeight.bold),
                 ),
-              )
+                SizedBox(width: 12),
+                Icon(Icons.star, color: Colors.orange, size: 22), // Day Rating Icon
+                SizedBox(width: 6),
+                Text(
+                  "Day Rating: ${dayRating.toInt()}",
+                  style: GoogleFonts.roboto(color: Colors.white, fontSize: 14,fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+
+  Widget _dualCircularIndicator(
+      double value1, double max1, double value2, double max2,
+      String label1, String label2, Color color1, Color color2) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        // Outer Circular Indicator
+        CircularPercentIndicator(
+          radius: 70.0,
+          lineWidth: 10.0,
+          animation: true,
+          percent: (value1 / max1).clamp(0.0, 1.0),
+          center: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "${value1}",
+                style: GoogleFonts.roboto(color: Colors.white, fontSize: 20,fontWeight: FontWeight.bold),
+              ),
+              Text(
+                "${value2}",
+                style: GoogleFonts.roboto(color: Colors.grey, fontSize: 14,fontWeight: FontWeight.w500),
+              ),
             ],
           ),
-        )
+          progressColor: color1,
+          backgroundColor: Colors.grey.shade900,
+          circularStrokeCap: CircularStrokeCap.round,
+        ),
+
+        // Inner Circular Indicator (Smaller Circle)
+        CircularPercentIndicator(
+          radius: 50.0,
+          lineWidth: 8.0,
+          animation: true,
+          percent: (value2 / max2).clamp(0.0, 1.0),
+          progressColor: color2,
+          backgroundColor: Colors.grey.shade900,
+          circularStrokeCap: CircularStrokeCap.round,
+        ),
+
+        // Displaying the second value outside (below)
+        Positioned(
+          bottom: -22, // Moves text slightly down
+          child: Row(
+            children: [
+              Icon(Icons.star, color: color2, size: 16),
+              SizedBox(width: 5),
+              Text(
+                "${value2.toInt()} $label2",
+                style: GoogleFonts.roboto(color: Colors.grey, fontSize: 14,fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
 
-  Widget _buildBarGraph(String label, double value, double max, Color color, IconData icon) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  Widget _buildSleepWidget() {
+    double sleepProgress = (sleepHours / goalSleepHours).clamp(0.0, 1.0);
+
+    return Card(
+      color: Colors.grey[900],
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label, style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-            Text('${value.toStringAsFixed(1)} kg', style: TextStyle(color: Colors.white, fontSize: 16)),
+            Row(
+              children: [
+                Icon(Icons.nightlight_round, color: Colors.blue, size: 28),
+                SizedBox(width: 10),
+                Text(
+                  "Sleep Tracker",
+                  style: GoogleFonts.roboto(
+                    color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 8),
+            Text(
+              "Hours Slept: ${sleepHours.toStringAsFixed(1)} hrs",
+              style: GoogleFonts.roboto(
+                color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700,
+              ),
+            ),
+            Text(
+              "Goal: ${goalSleepHours.toStringAsFixed(1)} hrs",
+              style: GoogleFonts.roboto(
+                color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w700,
+              ),
+            ),
+            SizedBox(height: 10),
+            //  Sleep Progress Bar (Fixed)
+            Stack(
+              children: [
+                Container(
+                  height: 12,
+                  width: double.infinity,  // Makes it responsive
+                  decoration: BoxDecoration(
+                    color: Colors.grey[400],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                Container(
+                  height: 12,
+                  width: MediaQuery.of(context).size.width * 0.6 * sleepProgress, //  Dynamic width
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 5),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Text(
+                "${(sleepProgress * 100).toInt()}% completed",
+                style: GoogleFonts.roboto(
+                  color: Colors.blueAccent, fontSize: 12, fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
+  Widget _buildWaterIntake() {
+    double waterProgress = (waterIntake / goalWaterIntake).clamp(0.0, 1.0);
+
+    return Column(
+      children: [
+        Text("Water Intake",
+          style: GoogleFonts.roboto(color: Colors.white, fontSize: 16,fontWeight: FontWeight.w700),
+
+        ),
+        SizedBox(height: 8),
+        Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            // Bottle Shape (Outer Container)
+            Container(
+              width: 50,
+              height: 150,
+              decoration: BoxDecoration(
+                color: Colors.grey[900],
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.blue, width: 2),
+              ),
+            ),
+            // Water Level (Inner Container)
+            Container(
+              width: 50,
+              height: 150 * waterProgress, // Adjust height based on intake
+              decoration: BoxDecoration(
+                color: Colors.blueAccent,
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
           ],
         ),
         SizedBox(height: 8),
-        Container(
-          height: 20,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: Colors.grey.shade800,
-          ),
-          child: FractionallySizedBox(
-            widthFactor: value / max,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: color,
-              ),
-            ),
-          ),
+        Text("${waterIntake.toStringAsFixed(1)} / ${goalWaterIntake.toStringAsFixed(1)} L",
+            style: GoogleFonts.roboto(color: Colors.white, fontSize: 14,fontWeight: FontWeight.w700)
         ),
       ],
     );
   }
 
-  Widget _buildHorizontalBarGraph(String label, double value, double max, Color color, IconData icon) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  Widget _buildWeightProgress() {
+    double weightProgress = (weight / goalWeight).clamp(0.0, 1.0);
+
+    return Card(
+      color:Colors.grey[900],
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label, style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-            Text('${value.toStringAsFixed(1)} hrs', style: TextStyle(color: Colors.white, fontSize: 16)),
-          ],
-        ),
-        SizedBox(height: 8),
-        Container(
-          height: 20,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: Colors.grey.shade800,
-          ),
-          child: FractionallySizedBox(
-            widthFactor: value / max,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: color,
+            Row(
+              children: [
+                Icon(Icons.fitness_center, color: Colors.deepOrange, size: 28),
+                SizedBox(width: 10),
+                Text(
+                  "Weight Progress",
+                  style: GoogleFonts.roboto(color: Colors.white, fontSize: 16,fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            SizedBox(height: 8),
+            Text(
+              "Current Weight: $weight kg",
+              style: GoogleFonts.roboto(color: Colors.white, fontSize: 14,fontWeight: FontWeight.w700),
+            ),
+            Text(
+              "Goal: $goalWeight kg",
+              style: GoogleFonts.roboto(color: Colors.grey, fontSize: 12,fontWeight: FontWeight.w700),
+            ),
+            SizedBox(height: 10),
+            // Weight Progress Bar
+            Stack(
+              children: [
+                Container(
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[400],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                Container(
+                  height: 12,
+                  width: 200 * weightProgress, // Adjust width dynamically
+                  decoration: BoxDecoration(
+                    color: Colors.deepOrange,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 5),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Text(
+                "${(weightProgress * 100).toInt()}% achieved",
+                style: GoogleFonts.roboto(color: Colors.deepOrangeAccent, fontSize: 12,fontWeight: FontWeight.w700),
               ),
             ),
-          ),
+          ],
         ),
+      ),
+    );
+  }
+
+
+  Widget _buildBottomNavBar() {
+    return BottomNavigationBar(
+      backgroundColor:Colors.black,
+      selectedItemColor: Colors.white,
+      unselectedItemColor: Colors.grey,
+      items: [
+        BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+        BottomNavigationBarItem(icon: Icon(Icons.history), label: "History"),
+        BottomNavigationBarItem(icon: Icon(Icons.more_horiz), label: "More"),
       ],
     );
   }

@@ -28,15 +28,47 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  # Core Flutter Dependencies
   flutter:
     sdk: flutter
-  health: ^12.0.1
-  provider: ^6.1.2
-  permission_handler: ^11.3.1
-  fl_chart: ^0.70.2
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.8
+  cupertino_icons: ^1.0.8  # iOS-style icons
+
+  # State Management
+  provider: ^6.1.2  # Simple state management solution
+
+  # Health & Fitness Tracking
+  health: ^12.0.1  # Google Fit & Apple HealthKit integration
+
+  # Permissions Handling
+  permission_handler: ^11.3.1  # Manage app permissions
+
+  # Networking
+  http: ^1.3.0  # HTTP requests for API calls
+
+  # Local Storage
+  shared_preferences: ^2.5.2  # Store key-value data locally
+
+  # UI & Styling Libraries
+  getwidget: ^6.0.0  # Prebuilt UI components
+  flutter_neumorphic_plus: ^3.4.0  # Neumorphic UI design
+
+  # Charts & Data Visualization
+  fl_chart: ^0.70.2  # Custom charts & graphs
+  syncfusion_flutter_charts: ^29.1.33  # Advanced chart components
+
+  # Progress Indicators
+  percent_indicator: ^4.2.4  # Circular & linear progress indicators
+
+  # UI Enhancements & Animations
+  flutter_screenutil: ^5.9.3  # Adaptive UI for different screen sizes
+  lottie: ^3.3.1  # Beautiful animations
+  animations: ^2.0.11  # Smooth page transitions
+  auto_size_text: ^3.0.0  # Auto-adjust text size
+
+  # Fonts & Icons
+  google_fonts: ^6.2.1  # Custom fonts from Google
+  lucide_icons: ^0.257.0  # Modern, minimalistic icons
+
 
 dev_dependencies:
   flutter_test:
