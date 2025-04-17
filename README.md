@@ -89,7 +89,7 @@ python app.py
 
 ## Contributors
 
-- [You – Core Developer](https://github.com/B-Acharekar)  
+- [Bhushan – Core Developer](https://github.com/B-Acharekar)  
 - [Yash – Frontend & Support](https://github.com/YASHUDAYBHAT) 
 - [Aman – Backend Assistant](https://github.com/Blackace1234))  
 - [Aditya – AI/Cloud Support](https://github.com/Aditya-username)  
