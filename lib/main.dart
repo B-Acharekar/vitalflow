@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
+import 'screens/history_screen.dart';
+import 'screens/get_started_screen.dart';
+import 'screens/browse_screen.dart';
+
 
 void main() {
   runApp(MyApp());
@@ -16,8 +20,11 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes :{
-        '/':(context) => LoginScreen(),
+        '/':(context) => GetStartedScreen(),
+        '/login':(context) => LoginScreen(),
         '/home':(context) => HomeScreen(),
+        '/history': (context) => HistoryScreen(),
+        '/browse': (context) => BrowseScreen()
       },
     );
   }

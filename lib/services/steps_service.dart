@@ -3,7 +3,8 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class StepService {
-  static const String baseUrl = "http://10.0.2.2:5000"; // Change for real device
+  // static const String baseUrl = "http://10.0.2.2:5000"; // Change for real device
+  static const String baseUrl = "http://192.168.197.43:5000";
 
   // ✅ Log Steps
   static Future<Map<String, dynamic>> logSteps(double stepsCount, {double? stepsGoal}) async {
@@ -30,14 +31,14 @@ class StepService {
   }
 
   // ✅ Get Steps
-  static Future<Map<String, dynamic>> getSteps() async {
+  static Future<Map<String, dynamic>> getSteps(String timeRange) async {
     String? userId = await getUserId();
     if (userId == null) {
       return Future.error("User not logged in");
     }
 
     final response = await http.get(
-      Uri.parse("$baseUrl/get-steps/$userId"), // ✅ Matches Flask API
+      Uri.parse("$baseUrl/get-steps/$userId?range=$timeRange"), // ✅ Corrected
       headers: {"Content-Type": "application/json"},
     );
 

@@ -1,22 +1,33 @@
-import 'package:flutter/material.dart';
 import '../services/steps_service.dart';
 
 class StepsUtils {
-  static Future<void> logSteps(BuildContext context, dynamic stepsCount, Function refreshData, {double? stepsGoal}) async {
+  static void logUserSteps(double steps,{double goal = 10000}) async {
     try {
-      // Ensure correct conversion
-      double steps = double.tryParse(stepsCount.toString()) ?? 0.0;
 
-      await StepService.logSteps(steps, stepsGoal: stepsGoal);
+      Map<String, dynamic> response = await StepService.logSteps(steps, stepsGoal: goal);
 
-      // Refresh data after logging
-      refreshData();
+      print("Step log response: $response");
+    } catch (error) {
+      print("Error logging steps: $error");
+    }
+  }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Logged $stepsCount steps!")),
-      );
+  static Future<List<dynamic>> fetchStepCount({String timeRange = "today"}) async {
+    try {
+      Map<String, dynamic> stepData = await StepService.getSteps(timeRange);
+      List<dynamic> stepRecords = stepData["steps"] ?? [];
+      return stepRecords;
     } catch (e) {
-      print("Error logging steps: $e");
+      return Future.error("Error fetching step data: $e");
+    }
+  }
+
+  static Future<Map<String, dynamic>> logStepCount(double stepsCount, {double? stepsGoal}) async {
+    try {
+      return await StepService.logSteps(stepsCount, stepsGoal: stepsGoal);
+    } catch (e) {
+      return Future.error("Error logging steps: $e");
     }
   }
 }
+

@@ -3,7 +3,8 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HealthService {
-  static const String baseUrl = "http://10.0.2.2:5000"; // Change for real device
+  // static const String baseUrl = "http://10.0.2.2:5000"; // Change for real device
+  static const String baseUrl = "http://192.168.197.43:5000";
 
   //  Log Health Data (Weight & Height)
   static Future<Map<String, dynamic>> logHealth(double weight, double height) async {

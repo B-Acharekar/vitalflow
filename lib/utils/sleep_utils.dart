@@ -1,19 +1,29 @@
-import 'package:flutter/material.dart';
 import '../services/sleep_service.dart';
 
 class SleepUtils {
-  static Future<void> logSleep(BuildContext context, double sleepDuration, int sleepQuality, Function refreshData, {double? sleepGoal}) async {
+  //log
+  static void logUserSleep(int sleepDuration, {int sleepGoal = 450}) async {
+    String sleepQuality = "";
+    if (300< sleepDuration && sleepDuration < sleepGoal){
+      sleepQuality = "Good";
+    } else {
+      sleepQuality = "Bad";
+    }
     try {
-      await SleepService.logSleep(sleepDuration, sleepQuality, sleepGoal: sleepGoal);
-
-      // Refresh UI after logging
-      refreshData();
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Logged Sleep: $sleepDuration min, Quality: $sleepQuality")),
-      );
+      Map<String, dynamic> response = await SleepService.logSleep(sleepDuration,sleepQuality,sleepGoal: sleepGoal);
+      print("Step log response: $response");
+    } catch (error) {
+      print("Error logging steps: $error");
+    }
+  }
+  // fetch
+  static Future<List<dynamic>> fetchSleep({String timeRange = "today"}) async {
+    try {
+      Map<String, dynamic> sleepData = await SleepService.getSleep(timeRange);
+      List<dynamic> sleepRecords = sleepData["sleep"] ?? [];
+      return sleepRecords;
     } catch (e) {
-      print("Error logging sleep: $e");
+      return Future.error("Error fetching step data: $e");
     }
   }
 }

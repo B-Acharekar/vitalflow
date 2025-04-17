@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 
+import 'package:google_fonts/google_fonts.dart';
+
 class VitalsWidget extends StatelessWidget {
   final double heartRate;
   final void Function(double) onHeartRateChanged;
@@ -23,7 +25,7 @@ class VitalsWidget extends StatelessWidget {
           child: ExpansionTile(
             title: Text(
               "Vitals",
-              style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+              style: GoogleFonts.poppins(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
             ),
             backgroundColor: Colors.transparent.withOpacity(0.1),
             childrenPadding: const EdgeInsets.all(16.0),
@@ -32,7 +34,7 @@ class VitalsWidget extends StatelessWidget {
               SizedBox(height: 10),
               ElevatedButton(
                 onPressed: () => _showHeartRateDialog(context),
-                child: Text("Log Heart Rate", style: TextStyle(color: Colors.white)),
+                child: Text("Log Heart Rate", style: GoogleFonts.poppins(color: Colors.white)),
                 style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF1976D2)),
               ),
             ],
@@ -47,8 +49,8 @@ class VitalsWidget extends StatelessWidget {
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: TextStyle(color: Colors.white70, fontSize: 16)),
-        Text("$value", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+        Text(label, style: GoogleFonts.poppins(color: Colors.white70, fontSize: 16)),
+        Text("$value", style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
       ],
     ),
   );
@@ -60,14 +62,14 @@ class VitalsWidget extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: Color(0xFF1976D2) ,
-        title: Text("Log Heart Rate", style: TextStyle(color: Colors.white)),
+        title: Text("Log Heart Rate", style: GoogleFonts.poppins(color: Colors.white)),
         content: TextField(
-          style: TextStyle(color: Colors.white),
+          style: GoogleFonts.poppins(color: Colors.white),
           controller: heartRateController,
           keyboardType: TextInputType.number,
           decoration: InputDecoration(
             hintText: "Enter Heart Rate (BPM)",
-            hintStyle: TextStyle(color: Colors.white70), // Soft white hint
+            hintStyle: GoogleFonts.poppins(color: Colors.white70), // Soft white hint
             enabledBorder: UnderlineInputBorder(
               borderSide: BorderSide(color: Colors.white38),
             ),
@@ -79,7 +81,7 @@ class VitalsWidget extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text("Cancel", style: TextStyle(color: Colors.white)),
+            child: Text("Cancel", style: GoogleFonts.poppins(color: Colors.white)),
           ),
           TextButton(
             onPressed: () {
@@ -93,7 +95,7 @@ class VitalsWidget extends StatelessWidget {
                 );
               }
             },
-            child: Text("Log", style: TextStyle(color: Colors.white)),
+            child: Text("Log", style: GoogleFonts.poppins(color: Colors.white)),
           ),
         ],
       ),

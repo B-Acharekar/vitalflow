@@ -1,16 +1,20 @@
 import 'package:flutter/services.dart';
 
+
 class HealthManager {
   static const platform = MethodChannel('vitalflow/health');
 
   Future<int> fetchStepCount() async {
     try {
-      return await platform.invokeMethod<int>('getStepCount') ?? 0;
+      final int steps = await platform.invokeMethod('getStepCount') ?? 0;
+      print("Steps: $steps");
+      return steps;
     } catch (e) {
-      print("Failed to get step count: $e");
-      return 0;
+      print("Error fetching steps: $e");
+      return 0; // Return default value in case of error
     }
   }
+
 
   Future<double> fetchHeartRate() async {
     try {

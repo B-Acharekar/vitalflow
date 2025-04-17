@@ -3,7 +3,8 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HeartRateService {
-  static const String baseUrl = "http://10.0.2.2:5000"; // Change for real device
+  // static const String baseUrl = "http://10.0.2.2:5000"; // Change for real device
+  static const String baseUrl = "http://192.168.197.43:5000";
 
   //  **Log Heart Rate**
   static Future<Map<String, dynamic>> logHeartRate(double heartRateBpm) async {
@@ -31,14 +32,14 @@ class HeartRateService {
   }
 
   //  **Get Heart Rate**
-  static Future<Map<String, dynamic>> getHeartRate() async {
+  static Future<Map<String, dynamic>> getHeartRate(String timeRange) async {
     String? userId = await getUserId();
     if (userId == null) {
       return Future.error("User not logged in");
     }
 
     final response = await http.get(
-      Uri.parse("$baseUrl/get-heart-rate/$userId?range=today"),
+      Uri.parse("$baseUrl/get-heart-rate/$userId?range=$timeRange"),
       headers: {"Content-Type": "application/json"},
     );
 

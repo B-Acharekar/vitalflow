@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'dart:ui'; // For BackdropFilter
+import 'dart:ui';
+
+import 'package:google_fonts/google_fonts.dart'; // For BackdropFilter
 
 class ActivityWidget extends StatelessWidget {
   final int stepCount;
@@ -23,7 +25,7 @@ class ActivityWidget extends StatelessWidget {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10), // Blur effect for glassmorphism
           child: ExpansionTile(
-            title: Text("Activity", style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+            title: Text("Activity", style: GoogleFonts.poppins(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
             backgroundColor: Colors.transparent.withOpacity(0.1), // Glass effect
             childrenPadding: const EdgeInsets.all(16.0),
             children: [
@@ -34,7 +36,7 @@ class ActivityWidget extends StatelessWidget {
                 onPressed: () {
                   _showStepCountDialog(context); // Show dialog to input steps
                 },
-                child: Text("Log Step Count", style: TextStyle(color: Colors.white)),
+                child: Text("Log Step Count", style: GoogleFonts.poppins(color: Colors.white)),
                 style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF1976D2)),
               ),
             ],
@@ -49,8 +51,8 @@ class ActivityWidget extends StatelessWidget {
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: TextStyle(color: Colors.white70, fontSize: 16)),
-        Text("$value", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+        Text(label, style: GoogleFonts.poppins(color: Colors.white70, fontSize: 16)),
+        Text("$value", style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
       ],
     ),
   );
@@ -63,14 +65,14 @@ class ActivityWidget extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: Color(0xFF1976D2) ,
-        title: Text("Enter Step Count", style: TextStyle(color: Colors.white)),
+        title: Text("Enter Step Count", style: GoogleFonts.poppins(color: Colors.white)),
         content: TextField(
-          style: TextStyle(color: Colors.white),
+          style: GoogleFonts.poppins(color: Colors.white),
           controller: stepController,
           keyboardType: TextInputType.number,
           decoration: InputDecoration(
             hintText: "Enter Steps",
-            hintStyle: TextStyle(color: Colors.white70), // Soft white hint
+            hintStyle: GoogleFonts.poppins(color: Colors.white70), // Soft white hint
             enabledBorder: UnderlineInputBorder(
               borderSide: BorderSide(color: Colors.white38),
             ),
@@ -84,7 +86,7 @@ class ActivityWidget extends StatelessWidget {
             onPressed: () {
               Navigator.of(context).pop(); // Close dialog
             },
-            child: Text("Cancel", style: TextStyle(color: Colors.white)),
+            child: Text("Cancel", style: GoogleFonts.poppins(color: Colors.white)),
           ),
           TextButton(
             onPressed: () {
@@ -97,7 +99,7 @@ class ActivityWidget extends StatelessWidget {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please enter a valid number")));
               }
             },
-            child: Text("Log", style: TextStyle(color: Colors.white)),
+            child: Text("Log", style: GoogleFonts.poppins(color: Colors.white)),
           ),
         ],
       ),

@@ -24,7 +24,7 @@ class HydrationWidget extends StatelessWidget {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: ExpansionTile(
-            title: Text("Hydration", style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+            title: Text("Hydration", style: GoogleFonts.poppins(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
             backgroundColor: Colors.transparent.withOpacity(0.1),
             childrenPadding: const EdgeInsets.all(16.0),
             children: [
@@ -32,14 +32,14 @@ class HydrationWidget extends StatelessWidget {
               const SizedBox(height: 10),
               TextField(
                 controller: noteController,
-                style: GoogleFonts.roboto(color: Colors.white),
+                style: GoogleFonts.poppins(color: Colors.white),
                 maxLines: 3,
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Colors.white38,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
                   hintText: "Enter a hydration note (e.g., 'Drank 2 bottles')",
-                  hintStyle: GoogleFonts.roboto(color: Colors.white54),
+                  hintStyle: GoogleFonts.poppins(color: Colors.white54),
                 ),
               ),
               const SizedBox(height: 10),
@@ -49,11 +49,11 @@ class HydrationWidget extends StatelessWidget {
                   if (note.isNotEmpty) {
                     onNoteSubmitted(note); // Send note to parent
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Note submitted!", style: GoogleFonts.roboto())),
+                      SnackBar(content: Text("Note submitted!", style: GoogleFonts.poppins())),
                     );
                   }
                 },
-                child: Text("Log Note", style: GoogleFonts.roboto(color: Colors.white)),
+                child: Text("Log Note", style: GoogleFonts.poppins(color: Colors.white)),
                 style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF1976D2)),
               ),
             ],
@@ -68,8 +68,8 @@ class HydrationWidget extends StatelessWidget {
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: TextStyle(color: Colors.white70, fontSize: 16)),
-        Text(value, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+        Text(label, style: GoogleFonts.poppins(color: Colors.white70, fontSize: 16)),
+        Text(value, style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
       ],
     ),
   );

@@ -1,19 +1,21 @@
-import 'package:flutter/material.dart';
 import '../services/heart_rate_service.dart';
 
 class HeartRateUtils {
-  static Future<void> logHeartRate(BuildContext context, double heartRateBpm, Function refreshData) async {
+  static void logUserHeartRate(double heartRateBpm) async {
     try {
-      await HeartRateService.logHeartRate(heartRateBpm);
-
-      // ✅ Refresh UI after logging
-      refreshData();
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Logged Heart Rate: $heartRateBpm bpm!")),
-      );
+      Map<String, dynamic> response = await HeartRateService.logHeartRate(heartRateBpm);
+      print("Step log response: $response");
+    } catch (error) {
+      print("Error logging steps: $error");
+    }
+  }
+  static Future<List<dynamic>> fetchHeartRate({String timeRange = "today"}) async {
+    try {
+      Map<String, dynamic> heartData = await HeartRateService.getHeartRate(timeRange);
+      List<dynamic> heartRecords = heartData["heart_rate_log"] ?? [];
+      return heartRecords;
     } catch (e) {
-      print("Error logging heart rate: $e");
+      return Future.error("Error fetching step data: $e");
     }
   }
 }

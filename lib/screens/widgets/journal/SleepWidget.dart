@@ -26,7 +26,7 @@ class SleepWidget extends StatelessWidget {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: ExpansionTile(
-            title: Text("Sleep", style: GoogleFonts.roboto(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+            title: Text("Sleep", style: GoogleFonts.poppins(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
             backgroundColor: Colors.transparent.withOpacity(0.1),
             childrenPadding: const EdgeInsets.all(16.0),
             children: [
@@ -35,7 +35,7 @@ class SleepWidget extends StatelessWidget {
               SizedBox(height: 10),
               ElevatedButton(
                 onPressed: () => _showSleepDialog(context),
-                child: Text("Log Sleep", style: TextStyle(color: Colors.white)),
+                child: Text("Log Sleep", style: GoogleFonts.poppins(color: Colors.white)),
                 style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF1976D2)),
               ),
             ],
@@ -50,8 +50,8 @@ class SleepWidget extends StatelessWidget {
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: TextStyle(color: Colors.white70, fontSize: 16)),
-        Text(value, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+        Text(label, style: GoogleFonts.poppins(color: Colors.white70, fontSize: 16)),
+        Text(value, style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
       ],
     ),
   );
@@ -64,7 +64,7 @@ class SleepWidget extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: Color(0xFF1976D2) ,
-        title: Text("Update Sleep Info", style: TextStyle(color: Colors.white)),
+        title: Text("Update Sleep Info", style: GoogleFonts.poppins(color: Colors.white)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -73,7 +73,7 @@ class SleepWidget extends StatelessWidget {
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 hintText: "Enter sleep duration (hrs)",
-                hintStyle: TextStyle(color: Colors.white70), // Soft white hint
+                hintStyle: GoogleFonts.poppins(color: Colors.white70), // Soft white hint
                 enabledBorder: UnderlineInputBorder(
                   borderSide: BorderSide(color: Colors.white38),
                 ),
@@ -84,11 +84,11 @@ class SleepWidget extends StatelessWidget {
             ),
             SizedBox(height: 10),
             TextField(
-              style: TextStyle(color: Colors.white),
+              style: GoogleFonts.poppins(color: Colors.white),
               controller: goalController,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(hintText: "Enter sleep goal (hrs)",
-                hintStyle: TextStyle(color: Colors.white70), // Soft white hint
+                hintStyle: GoogleFonts.poppins(color: Colors.white70), // Soft white hint
               enabledBorder: UnderlineInputBorder(
                 borderSide: BorderSide(color: Colors.white38),
               ),
@@ -102,7 +102,7 @@ class SleepWidget extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text("Cancel", style: TextStyle(color: Colors.white)),
+            child: Text("Cancel", style: GoogleFonts.poppins(color: Colors.white)),
           ),
           TextButton(
             onPressed: () {
@@ -114,7 +114,7 @@ class SleepWidget extends StatelessWidget {
 
               Navigator.of(context).pop();
             },
-            child: Text("Save", style: TextStyle(color: Colors.white)),
+            child: Text("Save", style: GoogleFonts.poppins(color: Colors.white)),
           ),
         ],
       ),

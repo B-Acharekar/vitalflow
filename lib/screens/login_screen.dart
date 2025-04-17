@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:vitalflow/services/user_services.dart'; // Adjust the path if needed
+import 'package:google_fonts/google_fonts.dart';
+import 'package:vitalflow/screens/ForgotPasswordScreen.dart';
+import 'package:vitalflow/services/user_services.dart';
 import 'package:vitalflow/screens/signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -10,12 +12,20 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  bool isLoading = false; // Track loading state
+  bool isLoading = false;
+  bool isPasswordVisible = false;
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
 
   void showSnackBar(String message, {Color color = Colors.red}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message, style: TextStyle(color: Colors.white)),
+        content: Text(message, style: GoogleFonts.poppins(color: Colors.white)),
         backgroundColor: color,
         duration: Duration(seconds: 2),
       ),
@@ -27,14 +37,21 @@ class _LoginScreenState extends State<LoginScreen> {
       isLoading = true;
     });
 
-    String email = emailController.text;
-    String password = passwordController.text;
+    String email = emailController.text.trim();
+    String password = passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      showSnackBar("Please fill in both fields.");
+      setState(() {
+        isLoading = false;
+      });
+      return;
+    }
 
     try {
-      var response = await UserService.loginUser(email, password);
+      await UserService.loginUser(email, password);
       showSnackBar("Login Successful!", color: Colors.green);
 
-      // Navigate to Home Screen
       Navigator.pushReplacementNamed(context, '/home');
     } catch (e) {
       showSnackBar("Invalid email or password");
@@ -48,67 +65,136 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Get screen height and width using MediaQuery
+    double screenHeight = MediaQuery.of(context).size.height;
+    double screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
-      backgroundColor: Color(0xFF121212), // Dark background
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.blueAccent),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-      ),
-      body: Center(
+      backgroundColor: Color(0xFF121D2C),
+      body: SingleChildScrollView(  // Added for scrollability
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 30),
+          padding: EdgeInsets.symmetric(horizontal: 24), // Consistent padding
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start, // Align to the top for better scrolling
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Logo
-              Container(
-                margin: EdgeInsets.only(bottom: 20),
-                child: Image.asset(
-                  'assets/vitalflow_logo.png',
-                  height: 200,
-                ),
+              // Use Flexible to allow for responsive spacing
+              SizedBox(height: screenHeight * 0.1),  // Adjust height based on screen size
+
+              // App Logo with dynamic height based on screen size
+              Image.asset(
+                'assets/vitalflow_logo.png',
+                height: screenHeight * 0.2, // 20% of screen height
               ),
+              SizedBox(height: 25),
+
+              // Welcome Text
+              Text(
+                "Welcome Back",
+                style: GoogleFonts.poppins(
+                  fontSize: screenWidth * 0.08, // 8% of screen width for responsiveness
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 12),
+
+              // Subtitle
+              Text(
+                "Login to continue tracking your health",
+                style: GoogleFonts.poppins(
+                  fontSize: screenWidth * 0.045, // 4.5% of screen width for subtitle size
+                  color: Colors.white70,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 40),
 
               // Email Field
               _buildTextField(
                 hintText: "Email",
                 icon: Icons.email,
-                color: Colors.blue,
                 controller: emailController,
               ),
               SizedBox(height: 15),
 
-              // Password Field
+              // Password Field with Visibility Toggle
               _buildTextField(
                 hintText: "Password",
                 icon: Icons.lock,
-                color: Colors.green,
-                isPassword: true,
                 controller: passwordController,
+                isPassword: true,
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                    color: Colors.white54,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      isPasswordVisible = !isPasswordVisible;
+                    });
+                  },
+                ),
               ),
+              SizedBox(height: 5),
+
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ForgotPasswordScreen()), // Replace with ForgotPasswordScreen() when ready
+                    );
+                  },
+                  child: Text(
+                    "Forgot Password?",
+                    style: GoogleFonts.poppins(
+                      color: Colors.blueAccent,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+
               SizedBox(height: 25),
 
-              // Login Button
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
-                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 100),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              // Login Button (Styled Like Get Started)
+              GestureDetector(
+                onTap: isLoading ? null : login,
+                child: AnimatedContainer(
+                  duration: Duration(milliseconds: 250),
+                  curve: Curves.easeInOut,
+                  width: screenWidth * 0.6, // Button width relative to screen width
+                  height: 55,
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade600,
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.blue.shade900.withOpacity(0.5),
+                        blurRadius: 10,
+                        spreadRadius: 2,
+                        offset: Offset(0, 4),
+                      )
+                    ],
+                  ),
+                  alignment: Alignment.center,
+                  child: isLoading
+                      ? CircularProgressIndicator(color: Colors.white)
+                      : Text(
+                    "Login",
+                    style: GoogleFonts.poppins(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
-                onPressed: isLoading ? null : login, // Disable while loading
-                child: isLoading
-                    ? CircularProgressIndicator(color: Colors.white)
-                    : Text("Login", style: TextStyle(fontSize: 16, color: Colors.white)),
               ),
 
-              SizedBox(height: 10),
+              SizedBox(height: 30),
 
               // Signup Link
               TextButton(
@@ -120,9 +206,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 },
                 child: Text(
                   "Don't have an account? Sign Up",
-                  style: TextStyle(color: Colors.blueAccent),
+                  style: GoogleFonts.poppins(
+                    color: Colors.blueAccent,
+                    fontSize: 16,
+                  ),
                 ),
               ),
+              // Use Flexible at the end to make sure everything fits within screen size
+              SizedBox(height: screenHeight * 0.1),  // Add flexible spacing
             ],
           ),
         ),
@@ -130,25 +221,29 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // Custom TextField Builder
+  // Custom TextField
   Widget _buildTextField({
     required String hintText,
     required IconData icon,
-    required Color color,
-    bool isPassword = false,
     required TextEditingController controller,
+    bool isPassword = false,
+    Widget? suffixIcon,
   }) {
     return TextField(
       controller: controller,
-      obscureText: isPassword,
-      style: TextStyle(color: Colors.white),
+      obscureText: isPassword && !isPasswordVisible,
+      style: GoogleFonts.poppins(color: Colors.white),
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: TextStyle(color: Colors.white54),
+        hintStyle: GoogleFonts.poppins(color: Colors.white54),
         filled: true,
-        fillColor: Color(0xFF1E1E1E),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-        prefixIcon: Icon(icon, color: color),
+        fillColor: Color(0xFF0A0F2C),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        prefixIcon: Icon(icon, color: Colors.blueAccent),
+        suffixIcon: suffixIcon,
       ),
     );
   }

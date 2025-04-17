@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 
+import 'package:google_fonts/google_fonts.dart';
+
 class BodyMeasurementWidget extends StatelessWidget {
   final double height;
   final double weight;
@@ -27,7 +29,7 @@ class BodyMeasurementWidget extends StatelessWidget {
           child: ExpansionTile(
             title: Text(
               "Body Measurements",
-              style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+              style: GoogleFonts.poppins(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
             ),
             backgroundColor: Colors.transparent.withOpacity(0.1),
             childrenPadding: const EdgeInsets.all(16.0),
@@ -40,12 +42,12 @@ class BodyMeasurementWidget extends StatelessWidget {
                 children: [
                   ElevatedButton(
                     onPressed: () => _showInputDialog(context, "Height (cm)", onHeightChanged),
-                    child: Text("Log Height", style: TextStyle(color: Colors.white)),
+                    child: Text("Log Height", style: GoogleFonts.poppins(color: Colors.white)),
                     style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF1976D2)),
                   ),
                   ElevatedButton(
                     onPressed: () => _showInputDialog(context, "Weight (kg)", onWeightChanged),
-                    child: Text("Log Weight", style: TextStyle(color: Colors.white)),
+                    child: Text("Log Weight", style: GoogleFonts.poppins(color: Colors.white)),
                     style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF1976D2)),
                   ),
                 ],
@@ -62,8 +64,8 @@ class BodyMeasurementWidget extends StatelessWidget {
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: TextStyle(color: Colors.white70, fontSize: 16)),
-        Text("$value", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+        Text(label, style: GoogleFonts.poppins(color: Colors.white70, fontSize: 16)),
+        Text("$value", style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
       ],
     ),
   );
@@ -75,14 +77,14 @@ class BodyMeasurementWidget extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: Color(0xFF1976D2) ,
-        title: Text("Log $label", style: TextStyle(color: Colors.white)),
+        title: Text("Log $label", style: GoogleFonts.poppins(color: Colors.white)),
         content: TextField(
-          style: TextStyle(color: Colors.white),
+          style: GoogleFonts.poppins(color: Colors.white),
           controller: controller,
           keyboardType: TextInputType.number,
           decoration: InputDecoration(
             hintText: "Enter $label",
-            hintStyle: TextStyle(color: Colors.white70), // Soft white hint
+            hintStyle: GoogleFonts.poppins(color: Colors.white70), // Soft white hint
             enabledBorder: UnderlineInputBorder(
               borderSide: BorderSide(color: Colors.white38),
             ),
@@ -94,7 +96,7 @@ class BodyMeasurementWidget extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text("Cancel", style: TextStyle(color: Colors.white)),
+            child: Text("Cancel", style: GoogleFonts.poppins(color: Colors.white)),
           ),
           TextButton(
             onPressed: () {
@@ -108,7 +110,7 @@ class BodyMeasurementWidget extends StatelessWidget {
                 );
               }
             },
-            child: Text("Log", style: TextStyle(color: Colors.white)),
+            child: Text("Log", style: GoogleFonts.poppins(color: Colors.white)),
           ),
         ],
       ),

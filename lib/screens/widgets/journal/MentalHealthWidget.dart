@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 
+import 'package:google_fonts/google_fonts.dart';
+
 class MentalHealthWidget extends StatelessWidget {
   final double stressLevel;
   final double dayScore;
@@ -25,7 +27,7 @@ class MentalHealthWidget extends StatelessWidget {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: ExpansionTile(
-            title: Text("Mental Health", style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+            title: Text("Mental Health", style: GoogleFonts.poppins(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
             backgroundColor: Colors.transparent.withOpacity(0.1),
             childrenPadding: const EdgeInsets.all(16.0),
             children: [
@@ -34,13 +36,13 @@ class MentalHealthWidget extends StatelessWidget {
               const SizedBox(height: 10),
               ElevatedButton(
                 onPressed: () => _showInputDialog(context, "Stress Level", onLogStress),
-                child: const Text("Log Stress", style: TextStyle(color: Colors.white)),
+                child: Text("Log Stress", style: GoogleFonts.poppins(color: Colors.white)),
                 style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF1976D2)),
               ),
               const SizedBox(height: 8),
               ElevatedButton(
                 onPressed: () => _showInputDialog(context, "Day Score", onLogDayScore),
-                child: const Text("Log Day Score", style: TextStyle(color: Colors.white)),
+                child: Text("Log Day Score", style: GoogleFonts.poppins(color: Colors.white)),
                 style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF1976D2)),
               ),
             ],
@@ -55,8 +57,8 @@ class MentalHealthWidget extends StatelessWidget {
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: const TextStyle(color: Colors.white70, fontSize: 16)),
-        Text(value.toStringAsFixed(1), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+        Text(label, style: GoogleFonts.poppins(color: Colors.white70, fontSize: 16)),
+        Text(value.toStringAsFixed(1), style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
       ],
     ),
   );
@@ -72,7 +74,7 @@ class MentalHealthWidget extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
           "Log $title",
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -81,10 +83,10 @@ class MentalHealthWidget extends StatelessWidget {
             TextField(
               controller: valueController,
               keyboardType: TextInputType.number,
-              style: const TextStyle(color: Colors.white),
+              style: GoogleFonts.poppins(color: Colors.white),
               decoration: InputDecoration(
                 hintText: "Enter $title value (optional)",
-                hintStyle: const TextStyle(color: Colors.white60),
+                hintStyle: GoogleFonts.poppins(color: Colors.white60),
                 filled: true,
                 fillColor: Colors.white.withOpacity(0.05),
                 enabledBorder: OutlineInputBorder(
@@ -103,10 +105,12 @@ class MentalHealthWidget extends StatelessWidget {
             TextField(
               controller: noteController,
               maxLines: 3,
-              style: const TextStyle(color: Colors.white),
+              style: GoogleFonts.poppins(color: Colors.white),
               decoration: InputDecoration(
-                hintText: "Enter a note for $title",
-                hintStyle: const TextStyle(color: Colors.white60),
+                hintText: title == "Stress Level"
+                    ? "How are you feeling right now?"
+                    : "How was your day so far?",
+                hintStyle: GoogleFonts.poppins(color: Colors.white60),
                 filled: true,
                 fillColor: Colors.white.withOpacity(0.05),
                 enabledBorder: OutlineInputBorder(
@@ -124,7 +128,7 @@ class MentalHealthWidget extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text("Cancel", style: TextStyle(color: Colors.white)),
+            child: Text("Cancel", style: GoogleFonts.poppins(color: Colors.white)),
           ),
           TextButton(
             onPressed: () {
@@ -133,7 +137,7 @@ class MentalHealthWidget extends StatelessWidget {
               onSubmit(note, value);
               Navigator.of(context).pop();
             },
-            child: const Text("Submit", style: TextStyle(color: Colors.white)),
+            child: Text("Submit", style: GoogleFonts.poppins(color: Colors.white)),
           ),
         ],
       ),
