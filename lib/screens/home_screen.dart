@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -8,8 +6,10 @@ import 'package:vitalflow/utils/health_manager.dart';
 import 'package:vitalflow/services/water_intake_service.dart';
 import 'dart:async';
 
+import '../services/day_rating_service.dart';
 import '../services/heart_rate_service.dart';
 import '../services/sleep_service.dart';
+import '../services/stress_service.dart';
 import '../utils/health_service.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -26,7 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
   double goalSleepHours = 7.5;
   double waterIntake = 3.0;
   double goalWaterIntake = 3.7;
-  double stressLevel = 6.0;
+  double stressLevel = 0.0;
   double dayRating = 7;    // Add this variable
   double weight = 56.0;
   double goalWeight = 75.0;
@@ -51,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
       if (steps != 0 && bpm != 0 && kg != 0) {
         await StepService.logSteps(steps.toDouble(), stepsGoal: 10000);
         await HeartRateService.logHeartRate(bpm);
-        // await WeightService.logWeight(kg);
+        await HealthService.logHealth(kg, 170);
       } else {
         steps = 0;
         bpm = 0;
@@ -72,7 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
         double intake = double.tryParse(record["water_intake_ml"].toString()) ?? 0.0;
         totalWater += intake / 1000.0; // Convert ml to L
       }
-
+      // print("totalwater:$totalWater");
       //  Fetch Step Count Data
       Map<String, dynamic> stepData = await StepService.getSteps();
       List<dynamic> stepRecords = stepData["steps"] ?? [];
@@ -101,7 +101,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
       double totalSleep = 0.0;
       double sleepGoal = goalSleepHours; // Default goal
-      String lastSleepQuality = "Unknown"; // Default value
 
       if (sleepRecords.isNotEmpty) {
         var lastRecord = sleepRecords.last;
@@ -114,8 +113,6 @@ class _HomeScreenState extends State<HomeScreen> {
         sleepGoal = (lastRecord["sleep_goal"] is num)
             ? (lastRecord["sleep_goal"] / 60.0)
             : (double.tryParse(lastRecord["sleep_goal"].toString()) ?? 450.0) / 60.0;
-
-        lastSleepQuality = lastRecord["sleep_quality"] ?? "Unknown";
       }
 
       // Debugging output
@@ -131,7 +128,31 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
       // print(" Weight: $lastWeight kg");
+      // fetch stress level
+      Map<String, dynamic> stressData = await StressService.getStress("today");
+      List<dynamic> stressRecords = stressData["stress_logs"] ?? [];
 
+      int lastStressLevel = 50;
+      if (stressRecords.isNotEmpty) {
+        lastStressLevel = int.tryParse(stressRecords.last["stress_level"].toString()) ?? 50;
+      }
+
+      // print(" Stress Level (): ${lastStressLevel/10}");
+
+      //fetch day rating
+      Map<String, dynamic> dayRatingData = await DayRatingService.getDayRating("67d9832aeb911e7404571917");
+
+      // print(" Raw Day Rating Response: $dayRatingData");  // Debugging step
+
+      double lastDayRating = 5.0;  // Default rating
+
+      if (dayRatingData.containsKey("day_rating")) {
+        lastDayRating = double.tryParse(dayRatingData["day_rating"].toString()) ?? 5.0;
+      }
+
+      // print(" Day Rating Parsed: $lastDayRating");  // Check parsed value
+
+      // print(" Day Rating: $lastDayRating");
       setState(() {
         stepCount = totalSteps.toInt();
         goalStepCount = stepsGoal.toInt();
@@ -140,7 +161,8 @@ class _HomeScreenState extends State<HomeScreen> {
         sleepHours = totalSleep > 0 ? totalSleep : 0.0;
         goalSleepHours = sleepGoal > 0 ? sleepGoal : 7.5;
         weight = lastWeight > 0 ? lastWeight : 66;
-
+        stressLevel = lastStressLevel > 0 ? lastStressLevel / 10.0 : 6.0; //  Divide by 10 to match UI
+        dayRating = lastDayRating;
         isLoading = false;
       });
     } catch (e) {
@@ -241,14 +263,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 Icon(Icons.self_improvement, color: Colors.red, size: 22), // Stress Icon
                 SizedBox(width: 6),
                 Text(
-                  "Stress Lvl: ${stressLevel.toInt()}",
+                  "Stress Lvl: ${stressLevel}",
                   style: GoogleFonts.roboto(color: Colors.white, fontSize: 14,fontWeight: FontWeight.bold),
                 ),
                 SizedBox(width: 12),
                 Icon(Icons.star, color: Colors.orange, size: 22), // Day Rating Icon
                 SizedBox(width: 6),
                 Text(
-                  "Day Rating: ${dayRating.toInt()}",
+                  "Day Rating: ${dayRating}",
                   style: GoogleFonts.roboto(color: Colors.white, fontSize: 14,fontWeight: FontWeight.bold),
                 ),
               ],
