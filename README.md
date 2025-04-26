@@ -45,7 +45,7 @@ VitalFlow is a health tracking app designed to monitor and visualize key health 
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/vitalflow.git
+git clone https://github.com/B-Acharekar/vitalflow.git
 cd vitalflow
 ```
 
@@ -62,7 +62,12 @@ flutter run
 
 > This is only required if you're testing the Flask backend locally.
 
-1. Navigate to the `backend/` folder  
+1. Navigate to the `backend/' Repository and clone it :
+```bash
+git clone https://github.com/B-Acharekar/vitalflow_backend.git
+cd vitalflow_backend
+```
+ 
 2. Install the required dependencies:
 
 ```bash
