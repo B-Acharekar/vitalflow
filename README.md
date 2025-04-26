@@ -14,8 +14,6 @@ VitalFlow is a health tracking app designed to monitor and visualize key health 
 - Water Intake tracking via natural language input  
 - Weight Management goals with visual progress  
 - Day Rating based on daily health metrics  
-- Live Sync with health data (BLE and wearable integration in progress)  
-
 ---
 
 ## Tech Stack
@@ -30,7 +28,8 @@ VitalFlow is a health tracking app designed to monitor and visualize key health 
 
 ## Screenshots
 
-*Add your app screenshots here to showcase the UI*
+![Screenshot 2025-04-16 180334](https://github.com/user-attachments/assets/0da0cfd0-dab0-42ad-ac05-91adf24c3474)
+
 
 ---
 
@@ -79,8 +78,6 @@ python app.py
 ---
 
 ## In Development
-
-- BLE integration for real-time health tracking  
 - ML-based stress prediction  
 - Authentication improvements (JWT)  
 - Insight generation using AI/ML models  
@@ -91,7 +88,7 @@ python app.py
 
 - [Bhushan – Core Developer](https://github.com/B-Acharekar)  
 - [Yash – Frontend & Support](https://github.com/YASHUDAYBHAT) 
-- [Aman – Backend Assistant](https://github.com/Blackace1234))  
+- [Aman – Backend Assistant](https://github.com/Blackace1234)
 - [Aditya – AI/Cloud Support](https://github.com/Aditya-username)  
 
 --- 
