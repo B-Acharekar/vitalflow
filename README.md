@@ -62,7 +62,7 @@ flutter run
 
 > This is only required if you're testing the Flask backend locally.
 
-1. Navigate to the `backend/' Repository and clone it :
+1. Navigate to the `[backend/](https://github.com/B-Acharekar/vitalflow_backend.git)' Repository and clone it :
 ```bash
 git clone https://github.com/B-Acharekar/vitalflow_backend.git
 cd vitalflow_backend
